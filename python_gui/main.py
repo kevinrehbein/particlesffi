@@ -45,11 +45,9 @@ def setup_library_functions(lib):        #Configura os tipos de argumentos e ret
 
 def animate():
 
-    #Pede para a biblioteca C++ calcular o próximo quadro
-    lib.simulation_update(0.016, WIDTH, HEIGHT, PARTICULA_RAIO)
+    lib.simulation_update(0.016, WIDTH, HEIGHT, PARTICULA_RAIO)     #biblioteca C++ calcula o próximo quadro
     
-    #Pega o endereço de memória do array de partículas atualizado
-    particulas_ptr = lib.get_particulas_data()
+    particulas_ptr = lib.get_particulas_data()                      #Pega o endereço de memória do array de partículas atualizado
     
     for i in range(NUM_PARTICULAS):
         particula_data = particulas_ptr[i]
@@ -60,26 +58,23 @@ def animate():
         y1 = particula_data.y + PARTICULA_RAIO
         canvas.coords(particula_shapes[i], x0, y0, x1, y1)
         
-    # Agenda a próxima chamada desta mesma função
-    window.after(INTERVALO_ATUALIZACAO_MS, animate)
+    window.after(INTERVALO_ATUALIZACAO_MS, animate)                 # Agenda a próxima chamada desta mesma função
 
-
-#Fluxo Principal de Execução
+# Main code
 
 lib = load_cpp_library()
 setup_library_functions(lib)
+
 window = tk.Tk()
 window.title("Simulação de Partículas (Python + C++)")
 canvas = tk.Canvas(window, width=WIDTH, height=HEIGHT, bg="black")
 canvas.pack()
 
-#Inicializa a simulação no C++
-lib.simulation_init(NUM_PARTICULAS, WIDTH, HEIGHT)
+lib.simulation_init(NUM_PARTICULAS, WIDTH, HEIGHT)                  #Inicializa a simulação no C++
 
-#Cria uma forma de círculo no canvas para cada partícula
-particula_shapes = []
+particula_shapes = []                                               #Cria uma forma de círculo no canvas para cada partícula
 for _ in range(NUM_PARTICULAS):
-    shape = canvas.create_oval(-10, -10, -10, -10, fill="cyan", outline="") #cria círculos fora da tela, eles serão movidos para o lugar certo
+    shape = canvas.create_oval(-10, -10, -10, -10, fill="cyan", outline="")     #cria círculos fora da tela, eles serão movidos para o lugar certo
     particula_shapes.append(shape)
 
 animate()
