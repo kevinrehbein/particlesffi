@@ -20,7 +20,7 @@ Para compilar e executar este projeto, você precisará de:
 
 1.  **Compilador C++**: `g++` (geralmente incluído no pacote `build-essential` em sistemas baseados em Debian/Ubuntu).
 2.  **Python 3**: A linguagem de script para a interface.
-3.  **Tkinter**: A biblioteca gráfica padrão do Python. Na maioria das vezes já vem instalada. Caso contrário, instale-a:
+3.  **Tkinter**: A biblioteca gráfica padrão do Python. Caso contrário seja necessário, instale-a:
     - Em Debian/Ubuntu: `sudo apt-get install python3-tk`
     - Em Fedora: `sudo dnf install python3-tkinter`
 
@@ -51,20 +51,3 @@ Para remover os arquivos gerados pela compilação, execute:
 ```
 make clean
 ```
-
-## Explicação da Interface entre Linguagens
-
-Interface de Função Externa (FFI) via **`ctypes`**
-A forma mais elegante e eficiente de fazer Python e C++ conversarem neste cenário é compilando o código C++ como uma biblioteca compartilhada (.so no Linux/macOS ou .dll no Windows) e carregando-a no Python usando a biblioteca padrão ctypes.
-
-1.  **Exportação em C++**: O código C++ é compilado como uma biblioteca compartilhada. Funções que precisam ser acessíveis pelo Python são declaradas com `extern "C"`. Isso impede que o compilador C++ altere os nomes das funções (um processo chamado *name mangling*), garantindo que o Python possa encontrá-las pelos seus nomes originais.
-
-2.  **Carregamento em Python**: O script Python (`main.py`) usa `ctypes.CDLL()` para carregar a biblioteca `libsimulation.so` em tempo de execução.
-
-3.  **Definição de Tipos**: Python não conhece as estruturas de dados do C++. Por isso, criamos uma classe `Particle(ctypes.Structure)` que espelha exatamente a `struct Particle` do C++. Também configuramos os tipos de argumentos (`.argtypes`) e o tipo de retorno (`.restype`) para cada função C++ importada. Isso garante a correta passagem de dados (inteiros, doubles, ponteiros).
-
-4.  **Fluxo de Dados**:
-    - O Python chama `simulation_init()` para que o C++ aloque a memória e inicialize as partículas.
-    - Em um loop contínuo, o Python chama `simulation_update()`, passando o tempo decorrido. O C++ realiza todos os cálculos de física.
-    - Imediatamente depois, o Python chama `simulation_get_particles()`, que retorna um **ponteiro** para o array de partículas no lado C++.
-    - O Python lê os dados de posição (`x`, `y`) diretamente da memória C++ através do ponteiro e atualiza as coordenadas dos círculos na tela do Tkinter.
